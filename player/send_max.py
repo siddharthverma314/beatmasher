@@ -19,6 +19,7 @@ uniqueness.processDatabase(db)
 
 #methods
 def normalize(alist):
+    '''Converts all values in a list to be between 0 and 1'''
     rlist = []
     mlist = max(alist)
     if mlist == 0:
@@ -28,12 +29,14 @@ def normalize(alist):
     return rlist
 
 def playBeat(beat):
+    '''Stream a beat to an OSC listener in live'''
     global beatToPlay
     beatToPlay = beat
     server.serve_forever()
     server.close()
 
 def playBang(addr, tags, msg, client_address):
+    '''Send one set of notes to be played at a specific time'''
     global count, offset
 
     #index of track and note to insert
@@ -92,16 +95,17 @@ def setOffset(addr, tags, msg, client_address):
     global offset
     offset = float(msg[0])/127
 
-#setup OSC objects
-client = OSC.OSCClient()
-server = OSC.OSCServer(('localhost', PORT_RECV))
-
-client.connect(('localhost', PORT_SEND))
-server.addDefaultHandlers()
-server.addMsgHandler('/tempo', playBang)
-server.addMsgHandler('/uniqueness', setOffset)
-try:
-    playBeat(db.beats[2])
-except KeyboardInterrupt:
-    server.close()
+if __name__ == '__main__':
+    #setup OSC objects
+    client = OSC.OSCClient()
+    server = OSC.OSCServer(('localhost', PORT_RECV))
+    
+    client.connect(('localhost', PORT_SEND))
+    server.addDefaultHandlers()
+    server.addMsgHandler('/tempo', playBang)
+    server.addMsgHandler('/uniqueness', setOffset)
+    try:
+        playBeat(db.beats[2])
+    except KeyboardInterrupt:
+        server.close()
 

@@ -2,26 +2,34 @@ import midi, os
 import constructs.database as database
 import constructs.beat as beat
 
-DEFAULT_RESOLUTION = 64
+DEFAULT_RESOLUTION = 64 #smallest duration that can be stored
 
 def loadDatabase(pathToDatabase="../database", resolution=DEFAULT_RESOLUTION):
+    '''This function creates a database out of all midi files in a folder. The 
+    folder must contain only midi files or this function will not work.
+    '''
     #load files
     db = database.Database()
     files = {}
     names = os.listdir(pathToDatabase)
     for name in names:
         files[name] = midi.read_midifile("../database/" + name)
-        loadFile(name, db, resolution, files)
+        loadFile(files[name], db, resolution, files)
     return db
 
-def loadFile(name, d, resolution, files):
+def loadFile(midiFile, d, resolution, files):
+    '''Loads one midi file into a database d.
+    @param d: The database to input the midi file into.
+    @param midiFile: The midi object of the file.
+    @param resolution: The smallest duration of a note, ex 32 = 1/32th note
+    '''
     resolution /= 8
     myBeat = beat.Beat()
     myBeat.name = name
     index = 0
-    for event in files[name][0]:
+    for event in midiFile[0]:
         if event.tick != 0:
-            index += int(float(event.tick) / files[name].resolution * resolution)
+            index += int(float(event.tick) / midiFile.resolution * resolution)
         addBeat(event, myBeat, index)
     d.beats.append(myBeat)
     #fill with zeros
