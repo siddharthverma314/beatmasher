@@ -23,3 +23,8 @@ class Track:
         self.beatList = beatList
         self.uniqueness = uniqueness
         self.noteUniqueness = []
+
+    def __getitem__(self, index):
+        if isinstance(index, int):
+            length = len(self.beatList)
+            return self.beatList[index % length]

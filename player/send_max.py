@@ -2,7 +2,9 @@ import time
 import analysis.make_database as make_database
 import analysis.uniqueness as uniqueness
 import constructs.database as database
+import constructs.beat as beat
 import player.OSC as OSC
+import create.create as create
 
 #variables
 PORT_SEND = 15928
@@ -99,13 +101,23 @@ if __name__ == '__main__':
     #setup OSC objects
     client = OSC.OSCClient()
     server = OSC.OSCServer(('localhost', PORT_RECV))
-    
+    c = create.CreateRandom()
+
     client.connect(('localhost', PORT_SEND))
     server.addDefaultHandlers()
     server.addMsgHandler('/tempo', playBang)
     server.addMsgHandler('/uniqueness', setOffset)
+
+    #create beat from db.beats[2]
+    myBeat = beat.Beat()
+    for track in db.beats[2].tracks:
+        myBeat.tracks.append(c.createTrack(track.uniqueness, track.midiNumber))
+
+    #analyse beat
+    uniqueness.processBeat(myBeat, db)
+    
     try:
-        playBeat(db.beats[2])
+        playBeat(myBeat)
     except KeyboardInterrupt:
         server.close()
 

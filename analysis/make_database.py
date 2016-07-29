@@ -14,10 +14,10 @@ def loadDatabase(pathToDatabase="../database", resolution=DEFAULT_RESOLUTION):
     names = os.listdir(pathToDatabase)
     for name in names:
         files[name] = midi.read_midifile("../database/" + name)
-        loadFile(files[name], db, resolution, files)
+        loadFile(files[name], db, resolution, files, name)
     return db
 
-def loadFile(midiFile, d, resolution, files):
+def loadFile(midiFile, d, resolution, files, name):
     '''Loads one midi file into a database d.
     @param d: The database to input the midi file into.
     @param midiFile: The midi object of the file.
