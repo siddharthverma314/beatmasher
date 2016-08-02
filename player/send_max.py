@@ -101,7 +101,7 @@ if __name__ == '__main__':
     #setup OSC objects
     client = OSC.OSCClient()
     server = OSC.OSCServer(('localhost', PORT_RECV))
-    c = create.CreateRandom()
+    c = create.CreatePattern()
 
     client.connect(('localhost', PORT_SEND))
     server.addDefaultHandlers()
