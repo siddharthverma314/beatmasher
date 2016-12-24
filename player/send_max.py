@@ -12,7 +12,11 @@ PORT_RECV = 8082
 
 #setup variabes
 count = 0
+<<<<<<< HEAD
 beats = []
+=======
+beatToPlay = None
+>>>>>>> 9e76446a312dc808250dbe779b36c68ae4861828
 
 #variables
 offset = 0
@@ -32,8 +36,13 @@ def normalize(alist):
 
 def playBeat(beat):
     '''Stream a beat to an OSC listener in live'''
+<<<<<<< HEAD
     global beats
     beats.append(beat)
+=======
+    global beatToPlay
+    beatToPlay = beat
+>>>>>>> 9e76446a312dc808250dbe779b36c68ae4861828
     server.serve_forever()
     server.close()
 
@@ -41,6 +50,7 @@ def playBang(addr, tags, msg, client_address):
     '''Send one set of notes to be played at a specific time'''
     global count, offset
 
+<<<<<<< HEAD
     for beatToPlay in beats:
         #index of track and note to insert
         convertedTrack = convertListToIndices([t.uniqueness for t in beatToPlay.tracks])
@@ -64,6 +74,30 @@ def playBang(addr, tags, msg, client_address):
 
         client.send(message)
         beatToPlay.tracks[trackIndex2].beatList = beatList
+=======
+    #index of track and note to insert
+    convertedTrack = convertListToIndices([t.uniqueness for t in beatToPlay.tracks])
+    trackIndex, rem = clipNumber(offset ,max(convertedTrack))
+    trackIndex2 = convertedTrack.index(trackIndex)
+
+    convertedNote = beatToPlay.tracks[trackIndex2].noteUniqueness
+    convertedNote = convertListToIndices(convertedNote)
+    convertedNote = normalize(convertedNote)
+    newBeatList = [0 if i <= rem else 1 for i in convertedNote]
+
+    #exchange newBeatList and beatList
+    beatList = beatToPlay.tracks[trackIndex2].beatList
+    beatToPlay.tracks[trackIndex2].beatList = newBeatList
+    
+    message = OSC.OSCMessage('/midi')
+    for i in xrange(len(beatToPlay.tracks)):
+        note = beatToPlay.tracks[i].beatList[count]
+        if note == 1 and convertedTrack[i] >= trackIndex:
+            message.append(beatToPlay.tracks[i].midiNumber)
+    client.send(message)
+    
+    beatToPlay.tracks[trackIndex2].beatList = beatList
+>>>>>>> 9e76446a312dc808250dbe779b36c68ae4861828
     count += 1
     count %= 256
 
@@ -110,6 +144,7 @@ if __name__ == '__main__':
     server.addMsgHandler('/uniqueness', setOffset)
 
     #create beat from db.beats[2]
+<<<<<<< HEAD
     #myBeat = beat.Beat()
     #for track in db.beats[6].tracks:
     #    myBeat.tracks.append(c.createTrack(track.uniqueness, track.midiNumber))
@@ -119,6 +154,17 @@ if __name__ == '__main__':
     
     try:
         playBeat(db.beats[6])
+=======
+    myBeat = beat.Beat()
+    for track in db.beats[2].tracks:
+        myBeat.tracks.append(c.createTrack(track.uniqueness, track.midiNumber))
+
+    #analyse beat
+    uniqueness.processBeat(myBeat, db)
+    
+    try:
+        playBeat(myBeat)
+>>>>>>> 9e76446a312dc808250dbe779b36c68ae4861828
     except KeyboardInterrupt:
         server.close()
 
